@@ -33,6 +33,16 @@ type LoginInput struct {
 	Password string `json:"password"`
 }
 
+type PostFilterInput struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
+type PostResponse struct {
+	TotalPost *int    `json:"totalPost"`
+	Post      []*Post `json:"post"`
+}
+
 type RegisterInput struct {
 	Username        string `json:"username"`
 	Password        string `json:"password"`

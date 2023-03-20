@@ -25,6 +25,7 @@ type PostRepository interface {
 	CreatePost(post *model.Post) (*model.Post, error)
 	GetPostById(id string) (*model.Post, error)
 	GetAllPostByLimitAndOffset(limit, offset int) ([]*model.Post, error)
+	GetPostsCount() (int64, error)
 }
 
 func (r *postRepository) CreatePost(post *model.Post) (*model.Post, error) {
@@ -66,4 +67,12 @@ func (r *postRepository) GetAllPostByLimitAndOffset(limit, offset int) ([]*model
 		results = append(results, &result)
 	}
 	return results, nil
+}
+
+func (r *postRepository) GetPostsCount() (int64, error) {
+	result, err := r.collection.CountDocuments(context.Background(), bson.M{})
+	if err != nil {
+		return 0, err
+	}
+	return result, nil
 }

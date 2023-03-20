@@ -82,9 +82,15 @@ type ComplexityRoot struct {
 		User        func(childComplexity int) int
 	}
 
+	PostResponse struct {
+		Post      func(childComplexity int) int
+		TotalPost func(childComplexity int) int
+	}
+
 	Query struct {
-		Post func(childComplexity int) int
-		User func(childComplexity int, input model.UserQueryInput) int
+		GetAllPostsByFilter func(childComplexity int, input *model.PostFilterInput) int
+		Post                func(childComplexity int) int
+		User                func(childComplexity int, input model.UserQueryInput) int
 	}
 
 	User struct {
@@ -113,6 +119,7 @@ type PostResolver interface {
 type QueryResolver interface {
 	User(ctx context.Context, input model.UserQueryInput) (*model.User, error)
 	Post(ctx context.Context) ([]*model.Post, error)
+	GetAllPostsByFilter(ctx context.Context, input *model.PostFilterInput) (*model.PostResponse, error)
 }
 
 type executableSchema struct {
@@ -283,6 +290,32 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Post.User(childComplexity), true
 
+	case "PostResponse.post":
+		if e.complexity.PostResponse.Post == nil {
+			break
+		}
+
+		return e.complexity.PostResponse.Post(childComplexity), true
+
+	case "PostResponse.totalPost":
+		if e.complexity.PostResponse.TotalPost == nil {
+			break
+		}
+
+		return e.complexity.PostResponse.TotalPost(childComplexity), true
+
+	case "Query.getAllPostsByFilter":
+		if e.complexity.Query.GetAllPostsByFilter == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getAllPostsByFilter_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAllPostsByFilter(childComplexity, args["input"].(*model.PostFilterInput)), true
+
 	case "Query.post":
 		if e.complexity.Query.Post == nil {
 			break
@@ -334,6 +367,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateCommentInput,
 		ec.unmarshalInputCreatePostInput,
 		ec.unmarshalInputLoginInput,
+		ec.unmarshalInputPostFilterInput,
 		ec.unmarshalInputRegisterInput,
 		ec.unmarshalInputUserQueryInput,
 	)
@@ -487,6 +521,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getAllPostsByFilter_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.PostFilterInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOPostFilterInput2ᚖgithubᚗcomᚋtipbkᚋdoodleᚋmodelᚐPostFilterInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -1523,6 +1572,105 @@ func (ec *executionContext) fieldContext_Post_hashtag(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _PostResponse_totalPost(ctx context.Context, field graphql.CollectedField, obj *model.PostResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PostResponse_totalPost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalPost, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PostResponse_totalPost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostResponse_post(ctx context.Context, field graphql.CollectedField, obj *model.PostResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PostResponse_post(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Post, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Post)
+	fc.Result = res
+	return ec.marshalNPost2ᚕᚖgithubᚗcomᚋtipbkᚋdoodleᚋmodelᚐPost(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PostResponse_post(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Post_id(ctx, field)
+			case "user":
+				return ec.fieldContext_Post_user(ctx, field)
+			case "title":
+				return ec.fieldContext_Post_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Post_description(ctx, field)
+			case "comment":
+				return ec.fieldContext_Post_comment(ctx, field)
+			case "hashtag":
+				return ec.fieldContext_Post_hashtag(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_user(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_user(ctx, field)
 	if err != nil {
@@ -1640,6 +1788,67 @@ func (ec *executionContext) fieldContext_Query_post(ctx context.Context, field g
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getAllPostsByFilter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getAllPostsByFilter(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAllPostsByFilter(rctx, fc.Args["input"].(*model.PostFilterInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PostResponse)
+	fc.Result = res
+	return ec.marshalNPostResponse2ᚖgithubᚗcomᚋtipbkᚋdoodleᚋmodelᚐPostResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getAllPostsByFilter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalPost":
+				return ec.fieldContext_PostResponse_totalPost(ctx, field)
+			case "post":
+				return ec.fieldContext_PostResponse_post(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PostResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getAllPostsByFilter_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -3799,6 +4008,42 @@ func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj in
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputPostFilterInput(ctx context.Context, obj interface{}) (model.PostFilterInput, error) {
+	var it model.PostFilterInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"limit", "offset"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "limit":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+			it.Limit, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "offset":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+			it.Offset, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRegisterInput(ctx context.Context, obj interface{}) (model.RegisterInput, error) {
 	var it model.RegisterInput
 	asMap := map[string]interface{}{}
@@ -4201,6 +4446,38 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
+var postResponseImplementors = []string{"PostResponse"}
+
+func (ec *executionContext) _PostResponse(ctx context.Context, sel ast.SelectionSet, obj *model.PostResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostResponse")
+		case "totalPost":
+
+			out.Values[i] = ec._PostResponse_totalPost(ctx, field, obj)
+
+		case "post":
+
+			out.Values[i] = ec._PostResponse_post(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -4253,6 +4530,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_post(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getAllPostsByFilter":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAllPostsByFilter(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -4752,6 +5052,21 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋtipbkᚋdoodleᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (model.LoginInput, error) {
 	res, err := ec.unmarshalInputLoginInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4807,6 +5122,20 @@ func (ec *executionContext) marshalNPost2ᚖgithubᚗcomᚋtipbkᚋdoodleᚋmode
 		return graphql.Null
 	}
 	return ec._Post(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPostResponse2githubᚗcomᚋtipbkᚋdoodleᚋmodelᚐPostResponse(ctx context.Context, sel ast.SelectionSet, v model.PostResponse) graphql.Marshaler {
+	return ec._PostResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostResponse2ᚖgithubᚗcomᚋtipbkᚋdoodleᚋmodelᚐPostResponse(ctx context.Context, sel ast.SelectionSet, v *model.PostResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRegisterInput2githubᚗcomᚋtipbkᚋdoodleᚋmodelᚐRegisterInput(ctx context.Context, v interface{}) (model.RegisterInput, error) {
@@ -5181,11 +5510,35 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
+	return res
+}
+
 func (ec *executionContext) marshalOPost2ᚖgithubᚗcomᚋtipbkᚋdoodleᚋmodelᚐPost(ctx context.Context, sel ast.SelectionSet, v *model.Post) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Post(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOPostFilterInput2ᚖgithubᚗcomᚋtipbkᚋdoodleᚋmodelᚐPostFilterInput(ctx context.Context, v interface{}) (*model.PostFilterInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPostFilterInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

@@ -61,9 +61,20 @@ input CreateCommentInput {
   replyToComment: ID
 }
 
+input PostFilterInput {
+  limit: Int!
+  offset: Int!
+}
+
+type PostResponse {
+  totalPost: Int
+  post: [Post]!
+}
+
 type Query {
   user(input: UserQueryInput!): User!
   post: [Post]!
+  getAllPostsByFilter(input: PostFilterInput): PostResponse!
 }
 
 type Mutation {

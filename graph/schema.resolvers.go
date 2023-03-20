@@ -215,6 +215,28 @@ func (r *queryResolver) Post(ctx context.Context) ([]*model.Post, error) {
 	return result, nil
 }
 
+// GetAllPostsByFilter is the resolver for the getAllPostsByFilter field.
+func (r *queryResolver) GetAllPostsByFilter(ctx context.Context, input *model.PostFilterInput) (*model.PostResponse, error) {
+	result, err := r.PostRepository.GetAllPostByLimitAndOffset(input.Limit, input.Offset)
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := r.PostRepository.GetPostsCount()
+	if err != nil {
+		return nil, err
+	}
+
+	totalInt := int(total)
+	postResponse := model.PostResponse{
+		Post:      result,
+		TotalPost: &totalInt,
+	}
+
+	return &postResponse, nil
+
+}
+
 // Comment returns CommentResolver implementation.
 func (r *Resolver) Comment() CommentResolver { return &commentResolver{r} }
 
