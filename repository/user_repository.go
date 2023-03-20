@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/tipbk/doodle/model"
+	"github.com/tipbk/doodle/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -66,7 +67,7 @@ func (r *userRepository) CreateUser(username string, password string) (*model.Us
 		ID:       uuid.New().String(),
 		Username: username,
 	}
-	user.Password = user.HashPassword(password)
+	user.Password = util.HashPassword(password)
 	_, err := r.collection.InsertOne(context.Background(), user)
 	if err != nil {
 		return nil, err

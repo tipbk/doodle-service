@@ -88,8 +88,7 @@ func (r *mutationResolver) Register(ctx context.Context, input model.RegisterInp
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResponse, error) {
 	username := input.Username
 	password := input.Password
-	inputUser := model.User{}
-	user, err := r.UserRepository.GetUserByUsernameAndPassword(username, inputUser.HashPassword(password))
+	user, err := r.UserRepository.GetUserByUsernameAndPassword(username, util.HashPassword(password))
 	if err != nil {
 		return nil, err
 	}
