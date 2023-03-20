@@ -52,7 +52,7 @@ func (r *postRepository) GetAllPostByLimitAndOffset(limit, offset int) ([]*model
 	findOptions := options.Find()
 	findOptions.SetSkip(int64(offset))
 	findOptions.SetLimit(int64(limit))
-	cursor, err := r.collection.Find(context.Background(), bson.M{})
+	cursor, err := r.collection.Find(context.Background(), bson.M{}, findOptions)
 	if err != nil {
 		return nil, err
 	}
