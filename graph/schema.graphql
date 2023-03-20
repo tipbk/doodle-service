@@ -1,0 +1,73 @@
+scalar Time
+
+type User {
+  id: ID!
+  displayName: String
+  email: String!
+}
+
+type Post {
+  id: ID!
+  user: User!
+  title: String!
+  description: String!
+  comment: [Comment]!
+  hashtag: String!
+}
+
+type Comment {
+  id: ID!
+  comment: String!
+  post: Post!
+  replyOn: Comment
+}
+
+input RegisterInput {
+  email: String!
+  password: String!
+  confirmPassword: String!
+}
+
+input CreatePostInput {
+  title: String!
+  description: String!
+  hashtag: String!
+}
+
+type AuthToken {
+  accessToken: String!
+  expiredAt: Time!
+}
+
+type AuthResponse {
+  authToken: AuthToken!
+  user: User!
+}
+
+input UserQueryInput {
+  ID: ID
+  email: String
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input CreateCommentInput {
+  comment: String!
+  postId: ID!
+  replyToComment: ID
+}
+
+type Query {
+  user(input: UserQueryInput!): User!
+  post: [Post]!
+}
+
+type Mutation {
+  register(input: RegisterInput!): AuthResponse!
+  login(input: LoginInput!): AuthResponse!
+  createPost(input: CreatePostInput): Post!
+  createComment(input: CreateCommentInput): Comment!
+}
