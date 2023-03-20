@@ -37,19 +37,35 @@ func (r *commentResolver) ReplyOn(ctx context.Context, obj *model.Comment) (*mod
 	return comment, nil
 }
 
+// User is the resolver for the user field.
+func (r *commentResolver) User(ctx context.Context, obj *model.Comment) (*model.User, error) {
+	if obj == nil {
+		return nil, errors.New("user not found")
+	}
+	if obj.UserID == "" {
+		return nil, errors.New("user not found")
+	}
+
+	user, err := r.UserRepository.GetUserByID(obj.UserID)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 // Register is the resolver for the register field.
 func (r *mutationResolver) Register(ctx context.Context, input model.RegisterInput) (*model.AuthResponse, error) {
-	if input.Email == "" || input.Password == "" || input.ConfirmPassword == "" {
+	if input.Username == "" || input.Password == "" || input.ConfirmPassword == "" {
 		return nil, errors.New("fields required")
 	}
 	if input.Password != input.ConfirmPassword {
 		return nil, errors.New("password mismatched")
 	}
-	_, err := r.UserRepository.GetUserByEmail(input.Email)
+	_, err := r.UserRepository.GetUserByUsername(input.Username)
 	if err != mongo.ErrNoDocuments {
 		return nil, errors.New("user already exist")
 	}
-	user, err := r.UserRepository.CreateUser(input.Email, input.Password)
+	user, err := r.UserRepository.CreateUser(input.Username, input.Password)
 	if err != nil {
 		fmt.Println("error when creating new user")
 		return nil, errors.New("error occur")
@@ -70,10 +86,10 @@ func (r *mutationResolver) Register(ctx context.Context, input model.RegisterInp
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResponse, error) {
-	email := input.Email
+	username := input.Username
 	password := input.Password
 	inputUser := model.User{}
-	user, err := r.UserRepository.GetUserByEmailAndPassword(email, inputUser.HashPassword(password))
+	user, err := r.UserRepository.GetUserByUsernameAndPassword(username, inputUser.HashPassword(password))
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +183,7 @@ func (r *postResolver) Comment(ctx context.Context, obj *model.Post) ([]*model.C
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, input model.UserQueryInput) (*model.User, error) {
-	if input.ID == nil && input.Email == nil {
+	if input.ID == nil && input.Username == nil {
 		return nil, errors.New("invalid input")
 	}
 	if input.ID != nil {
@@ -181,7 +197,7 @@ func (r *queryResolver) User(ctx context.Context, input model.UserQueryInput) (*
 		}
 		return user, nil
 	}
-	user, err := r.UserRepository.GetUserByEmail(*input.Email)
+	user, err := r.UserRepository.GetUserByUsername(*input.Username)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, errors.New("not found")

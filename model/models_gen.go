@@ -29,17 +29,17 @@ type CreatePostInput struct {
 }
 
 type LoginInput struct {
-	Email    string `json:"email"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
 type RegisterInput struct {
-	Email           string `json:"email"`
+	Username        string `json:"username"`
 	Password        string `json:"password"`
 	ConfirmPassword string `json:"confirmPassword"`
 }
 
 type UserQueryInput struct {
-	ID    *string `json:"ID"`
-	Email *string `json:"email"`
+	ID       *string `json:"ID"`
+	Username *string `json:"username"`
 }

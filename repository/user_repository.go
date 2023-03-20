@@ -23,8 +23,8 @@ func NewUserRepository(db *mongo.Database) *userRepository {
 
 type UserRepository interface {
 	GetUserByID(id string) (*model.User, error)
-	GetUserByEmail(email string) (*model.User, error)
-	GetUserByEmailAndPassword(email, password string) (*model.User, error)
+	GetUserByUsername(username string) (*model.User, error)
+	GetUserByUsernameAndPassword(username, password string) (*model.User, error)
 	CreateUser(email string, password string) (*model.User, error)
 }
 
@@ -39,8 +39,8 @@ func (r *userRepository) GetUserByID(id string) (*model.User, error) {
 	return &user, nil
 }
 
-func (r *userRepository) GetUserByEmail(email string) (*model.User, error) {
-	filter := bson.M{"email": email}
+func (r *userRepository) GetUserByUsername(username string) (*model.User, error) {
+	filter := bson.M{"username": username}
 	user := model.User{}
 	err := r.collection.FindOne(context.Background(), filter).Decode(&user)
 	if err != nil {
@@ -50,8 +50,8 @@ func (r *userRepository) GetUserByEmail(email string) (*model.User, error) {
 	return &user, nil
 }
 
-func (r *userRepository) GetUserByEmailAndPassword(email, password string) (*model.User, error) {
-	filter := bson.M{"email": email, "password": password}
+func (r *userRepository) GetUserByUsernameAndPassword(username, password string) (*model.User, error) {
+	filter := bson.M{"username": username, "password": password}
 	user := model.User{}
 	err := r.collection.FindOne(context.Background(), filter).Decode(&user)
 	if err != nil {
@@ -61,10 +61,10 @@ func (r *userRepository) GetUserByEmailAndPassword(email, password string) (*mod
 	return &user, nil
 }
 
-func (r *userRepository) CreateUser(email string, password string) (*model.User, error) {
+func (r *userRepository) CreateUser(username string, password string) (*model.User, error) {
 	user := model.User{
-		ID:    uuid.New().String(),
-		Email: email,
+		ID:       uuid.New().String(),
+		Username: username,
 	}
 	user.Password = user.HashPassword(password)
 	_, err := r.collection.InsertOne(context.Background(), user)

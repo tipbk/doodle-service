@@ -3,7 +3,7 @@ scalar Time
 type User {
   id: ID!
   displayName: String
-  email: String!
+  username: String!
 }
 
 type Post {
@@ -20,10 +20,11 @@ type Comment {
   comment: String!
   post: Post!
   replyOn: Comment
+  user: User
 }
 
 input RegisterInput {
-  email: String!
+  username: String!
   password: String!
   confirmPassword: String!
 }
@@ -46,11 +47,11 @@ type AuthResponse {
 
 input UserQueryInput {
   ID: ID
-  email: String
+  username: String
 }
 
 input LoginInput {
-  email: String!
+  username: String!
   password: String!
 }
 

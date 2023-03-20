@@ -28,7 +28,7 @@ func (s *jwtService) GenerateUserToken(u *model.User) (string, *time.Time, error
 	expTime := time.Now().Add(time.Hour * 24)
 	claims := jwt.MapClaims{}
 	claims["jti"] = u.ID
-	claims["email"] = u.Email
+	claims["username"] = u.Username
 	claims["iat"] = time.Now().Unix()
 	claims["exp"] = expTime.Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
