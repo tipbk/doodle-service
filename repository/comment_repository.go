@@ -2,11 +2,13 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/tipbk/doodle/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type commentRepository struct {
@@ -14,7 +16,7 @@ type commentRepository struct {
 }
 
 func NewCommentRepository(db *mongo.Database) *commentRepository {
-	collection := db.Collection("post")
+	collection := db.Collection("comment")
 	return &commentRepository{
 		collection: collection,
 	}
@@ -29,6 +31,8 @@ type CommentRepository interface {
 func (r *commentRepository) CreateComment(comment *model.Comment) (*model.Comment, error) {
 	id := uuid.New().String()
 	comment.ID = id
+	now := time.Now()
+	comment.CreatedAt = &now
 	_, err := r.collection.InsertOne(context.Background(), comment)
 	if err != nil {
 		return nil, err
@@ -38,7 +42,9 @@ func (r *commentRepository) CreateComment(comment *model.Comment) (*model.Commen
 
 func (r *commentRepository) FindAllCommentsByPostId(postId string) ([]*model.Comment, error) {
 	filter := bson.M{"postId": postId}
-	cur, err := r.collection.Find(context.Background(), filter)
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{"createdAt", 1}})
+	cur, err := r.collection.Find(context.Background(), filter, findOptions)
 	if err != nil {
 		return nil, err
 	}

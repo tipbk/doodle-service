@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/tipbk/doodle/model"
@@ -30,6 +31,8 @@ type PostRepository interface {
 
 func (r *postRepository) CreatePost(post *model.Post) (*model.Post, error) {
 	post.ID = uuid.New().String()
+	now := time.Now()
+	post.CreatedAt = &now
 	_, err := r.collection.InsertOne(context.Background(), post)
 	if err != nil {
 		return nil, err
@@ -52,6 +55,7 @@ func (r *postRepository) GetAllPostByLimitAndOffset(limit, offset int) ([]*model
 	findOptions := options.Find()
 	findOptions.SetSkip(int64(offset))
 	findOptions.SetLimit(int64(limit))
+	findOptions.SetSort(bson.D{{"createdAt", -1}})
 	cursor, err := r.collection.Find(context.Background(), bson.M{}, findOptions)
 	if err != nil {
 		return nil, err
