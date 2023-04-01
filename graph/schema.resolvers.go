@@ -234,7 +234,16 @@ func (r *queryResolver) GetAllPostsByFilter(ctx context.Context, input *model.Po
 	}
 
 	return &postResponse, nil
+}
 
+// GetPost is the resolver for the getPost field.
+func (r *queryResolver) GetPost(ctx context.Context, input model.GetPostInput) (*model.Post, error) {
+	result, err := r.PostRepository.GetPostById(input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 // Comment returns CommentResolver implementation.

@@ -28,6 +28,10 @@ type CreatePostInput struct {
 	Hashtag     string `json:"hashtag"`
 }
 
+type GetPostInput struct {
+	ID string `json:"id"`
+}
+
 type LoginInput struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

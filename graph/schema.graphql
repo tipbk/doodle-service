@@ -66,6 +66,10 @@ input PostFilterInput {
   offset: Int!
 }
 
+input GetPostInput {
+  id: ID!
+}
+
 type PostResponse {
   totalPost: Int
   post: [Post]!
@@ -75,6 +79,7 @@ type Query {
   user(input: UserQueryInput!): User!
   post: [Post]!
   getAllPostsByFilter(input: PostFilterInput): PostResponse!
+  getPost(input: GetPostInput!): Post!
 }
 
 type Mutation {
