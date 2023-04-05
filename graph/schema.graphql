@@ -80,6 +80,7 @@ type Query {
   post: [Post]!
   getAllPostsByFilter(input: PostFilterInput): PostResponse!
   getPost(input: GetPostInput!): Post!
+  getAllComments(input: GetPostInput!): [Comment]!
 }
 
 type Mutation {

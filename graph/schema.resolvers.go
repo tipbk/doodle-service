@@ -246,6 +246,15 @@ func (r *queryResolver) GetPost(ctx context.Context, input model.GetPostInput) (
 	return result, nil
 }
 
+// GetAllComments is the resolver for the getAllComments field.
+func (r *queryResolver) GetAllComments(ctx context.Context, input model.GetPostInput) ([]*model.Comment, error) {
+	comments, err := r.CommentRepository.FindAllCommentsByPostId(input.ID)
+	if err != nil {
+		return nil, err
+	}
+	return comments, nil
+}
+
 // Comment returns CommentResolver implementation.
 func (r *Resolver) Comment() CommentResolver { return &commentResolver{r} }
 
